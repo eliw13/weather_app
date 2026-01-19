@@ -9,7 +9,40 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = false
+    @AppStorage("themePreference") private var themePreference: String = "system"
+    @AppStorage("backgroundColorOne") private var backgroundColorOne: String = "purple"
+    @AppStorage("backgroundColorTwo") private var backgroundColorTwo: String = "blue"
+    @Environment(\.colorScheme) private var systemColorScheme
+    
+    // Computed property to determine actual dark mode state
+    var isDarkMode: Bool {
+        switch themePreference {
+        case "dark":
+            return true
+        case "light":
+            return false
+        default: // "system"
+            return systemColorScheme == .dark
+        }
+    }
+    
+    // Map color string to Color
+    func getColor(from colorId: String) -> Color {
+        switch colorId {
+        case "purple": return .purple
+        case "blue": return .blue
+        case "pink": return .pink
+        case "teal": return .teal
+        case "orange": return .orange
+        case "green": return .green
+        case "indigo": return .indigo
+        case "red": return .red
+        case "yellow": return .yellow
+        case "cyan": return .cyan
+        case "mint": return .mint
+        default: return .purple
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -19,13 +52,13 @@ struct SettingsView: View {
                     .ignoresSafeArea()
                 
                 Circle()
-                    .fill(.purple.opacity(isDarkMode ? 0.4 : 1))
+                    .fill(getColor(from: backgroundColorOne).opacity(isDarkMode ? 0.4 : 1))
                     .frame(width: 320, height: 320)
                     .blur(radius: 128)
                     .offset(x: -128, y: 144)
                 
                 Rectangle()
-                    .fill(.blue.opacity(isDarkMode ? 0.4 : 1))
+                    .fill(getColor(from: backgroundColorTwo).opacity(isDarkMode ? 0.4 : 1))
                     .frame(width: 320, height: 320)
                     .blur(radius: 128)
                     .offset(x: 144, y: -128)
@@ -51,6 +84,33 @@ struct SettingsView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        
+                        // Feedback Section
+                        VStack(spacing: 12) {
+                            // Report a Problem
+                            Button(action: {
+                                reportProblem()
+                            }) {
+                                SettingsRowView(
+                                    icon: "exclamationmark.bubble.fill",
+                                    title: "Report a Problem",
+                                    subtitle: "Send us feedback"
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            
+                            // Rate on App Store
+                            Button(action: {
+                                rateOnAppStore()
+                            }) {
+                                SettingsRowView(
+                                    icon: "star.fill",
+                                    title: "Rate on App Store",
+                                    subtitle: "Share your experience"
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                     .padding(20)
                 }
@@ -66,7 +126,28 @@ struct SettingsView: View {
                 }
             }
         }
-        .preferredColorScheme(isDarkMode ? .dark : .light)
+        .preferredColorScheme(themePreference == "system" ? nil : (themePreference == "dark" ? .dark : .light))
+    }
+    
+    // MARK: - Feedback Actions
+    
+    private func reportProblem() {
+        let email = "testemail@gmail.com"
+        let subject = "MinWeather - Problem Report"
+        let body = "Please describe the issue you're experiencing:"
+        
+        let urlString = "mailto:\(email)?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+        
+        if let url = URL(string: urlString) {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    private func rateOnAppStore() {
+        // TODO: Replace with actual App Store link when published
+        if let url = URL(string: "https://www.google.com") {
+            UIApplication.shared.open(url)
+        }
     }
 }
 
@@ -75,7 +156,20 @@ struct SettingsRowView: View {
     let icon: String
     let title: String
     let subtitle: String
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = false
+    @AppStorage("themePreference") private var themePreference: String = "system"
+    @Environment(\.colorScheme) private var systemColorScheme
+    
+    // Computed property to determine actual dark mode state
+    var isDarkMode: Bool {
+        switch themePreference {
+        case "dark":
+            return true
+        case "light":
+            return false
+        default: // "system"
+            return systemColorScheme == .dark
+        }
+    }
     
     var body: some View {
         HStack(spacing: 16) {

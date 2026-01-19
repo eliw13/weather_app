@@ -30,6 +30,9 @@
 		AF97649B2F1E901100335A11 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF9764982F1E901100335A11 /* GeneralSettingsView.swift */; };
 		AF97649C2F1E901100335A11 /* DisplaySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF9764972F1E901100335A11 /* DisplaySettingsView.swift */; };
 		AF97649D2F1E901100335A11 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF9764992F1E901100335A11 /* SettingsView.swift */; };
+		AF9764A02F1E999E00335A11 /* LocationsManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */; };
+		AF9764A12F1E999E00335A11 /* LocationsManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */; };
+		AF9764A22F1E999E00335A11 /* LocationsManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +80,7 @@
 		AF9764972F1E901100335A11 /* DisplaySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplaySettingsView.swift; sourceTree = "<group>"; };
 		AF9764982F1E901100335A11 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		AF9764992F1E901100335A11 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsManagerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +180,7 @@
 		6C7878752C8C773500CFB006 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				AF97649F2F1E999E00335A11 /* Locations */,
 				AF97649A2F1E901100335A11 /* Settings */,
 				6C2B86232C8E9D6600E9B65B /* Home */,
 			);
@@ -232,6 +237,14 @@
 				AF9764992F1E901100335A11 /* SettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		AF97649F2F1E999E00335A11 /* Locations */ = {
+			isa = PBXGroup;
+			children = (
+				AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */,
+			);
+			path = Locations;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -378,6 +391,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AF97649B2F1E901100335A11 /* GeneralSettingsView.swift in Sources */,
+				AF9764A22F1E999E00335A11 /* LocationsManagerView.swift in Sources */,
 				AF97649C2F1E901100335A11 /* DisplaySettingsView.swift in Sources */,
 				AF97649D2F1E901100335A11 /* SettingsView.swift in Sources */,
 				6C2B86182C8D4D7F00E9B65B /* AvatarImageModifier.swift in Sources */,
@@ -397,6 +411,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF9764A12F1E999E00335A11 /* LocationsManagerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -404,6 +419,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF9764A02F1E999E00335A11 /* LocationsManagerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

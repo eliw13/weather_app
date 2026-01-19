@@ -8,7 +8,10 @@
 import SwiftUI
 
 struct GeneralSettingsView: View {
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = false
+    @AppStorage("themePreference") private var themePreference: String = "system"
+    @AppStorage("backgroundColorOne") private var backgroundColorOne: String = "purple"
+    @AppStorage("backgroundColorTwo") private var backgroundColorTwo: String = "blue"
+    @Environment(\.colorScheme) private var systemColorScheme
     @AppStorage("temperatureUnit") private var temperatureUnit: String = "fahrenheit"
     @AppStorage("windSpeedUnit") private var windSpeedUnit: String = "mph"
     @AppStorage("distanceUnit") private var distanceUnit: String = "miles"
@@ -17,6 +20,36 @@ struct GeneralSettingsView: View {
     @State private var showingLocationPicker = false
     @State private var customLocation: String = ""
     
+    // Computed property to determine actual dark mode state
+    var isDarkMode: Bool {
+        switch themePreference {
+        case "dark":
+            return true
+        case "light":
+            return false
+        default: // "system"
+            return systemColorScheme == .dark
+        }
+    }
+    
+    // Map color string to Color
+    func getColor(from colorId: String) -> Color {
+        switch colorId {
+        case "purple": return .purple
+        case "blue": return .blue
+        case "pink": return .pink
+        case "teal": return .teal
+        case "orange": return .orange
+        case "green": return .green
+        case "indigo": return .indigo
+        case "red": return .red
+        case "yellow": return .yellow
+        case "cyan": return .cyan
+        case "mint": return .mint
+        default: return .purple
+        }
+    }
+    
     var body: some View {
         ZStack {
             // Background matching main app
@@ -24,13 +57,13 @@ struct GeneralSettingsView: View {
                 .ignoresSafeArea()
             
             Circle()
-                .fill(.purple.opacity(isDarkMode ? 0.4 : 1))
+                .fill(getColor(from: backgroundColorOne).opacity(isDarkMode ? 0.4 : 1))
                 .frame(width: 320, height: 320)
                 .blur(radius: 128)
                 .offset(x: -128, y: 144)
             
             Rectangle()
-                .fill(.blue.opacity(isDarkMode ? 0.4 : 1))
+                .fill(getColor(from: backgroundColorTwo).opacity(isDarkMode ? 0.4 : 1))
                 .frame(width: 320, height: 320)
                 .blur(radius: 128)
                 .offset(x: 144, y: -128)
@@ -143,7 +176,7 @@ struct GeneralSettingsView: View {
         }
         .navigationTitle("General")
         .navigationBarTitleDisplayMode(.large)
-        .preferredColorScheme(isDarkMode ? .dark : .light)
+        .preferredColorScheme(themePreference == "system" ? nil : (themePreference == "dark" ? .dark : .light))
         .sheet(isPresented: $showingLocationPicker) {
             LocationPickerView(selectedLocation: $defaultLocation)
         }
@@ -158,7 +191,20 @@ struct SettingPickerRow: View {
     let options: [(id: String, display: String, description: String)]
     
     @State private var showingPicker = false
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = false
+    @AppStorage("themePreference") private var themePreference: String = "system"
+    @Environment(\.colorScheme) private var systemColorScheme
+    
+    // Computed property to determine actual dark mode state
+    var isDarkMode: Bool {
+        switch themePreference {
+        case "dark":
+            return true
+        case "light":
+            return false
+        default: // "system"
+            return systemColorScheme == .dark
+        }
+    }
     
     var body: some View {
         Button(action: {
@@ -241,7 +287,7 @@ struct SettingPickerRow: View {
                         .fontWeight(.semibold)
                     }
                 }
-                .preferredColorScheme(isDarkMode ? .dark : .light)
+                .preferredColorScheme(themePreference == "system" ? nil : (themePreference == "dark" ? .dark : .light))
             }
         }
     }
@@ -252,8 +298,22 @@ struct LocationPickerView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedLocation: String
     @State private var searchText: String = ""
+    @State private var searchTask: Task<Void, Never>?
     @State private var isUsingGPS: Bool = true
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = false
+    @AppStorage("themePreference") private var themePreference: String = "system"
+    @Environment(\.colorScheme) private var systemColorScheme
+    
+    // Computed property to determine actual dark mode state
+    var isDarkMode: Bool {
+        switch themePreference {
+        case "dark":
+            return true
+        case "light":
+            return false
+        default: // "system"
+            return systemColorScheme == .dark
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -317,9 +377,23 @@ struct LocationPickerView: View {
                             TextField("Search for a city...", text: $searchText)
                                 .font(.custom("Manrope", size: 16))
                                 .textFieldStyle(.plain)
+                                .onChange(of: searchText) { oldValue, newValue in
+                                    // Cancel previous search task
+                                    searchTask?.cancel()
+                                    
+                                    // Debounce search with 300ms delay
+                                    searchTask = Task {
+                                        try? await Task.sleep(nanoseconds: 300_000_000)
+                                        if !Task.isCancelled {
+                                            // This is just a simple text field for settings
+                                            // No actual search needed here
+                                        }
+                                    }
+                                }
                             
                             if !searchText.isEmpty {
                                 Button(action: {
+                                    searchTask?.cancel()
                                     searchText = ""
                                 }) {
                                     Image(systemName: "xmark.circle.fill")
@@ -371,7 +445,7 @@ struct LocationPickerView: View {
                     .fontWeight(.semibold)
                 }
             }
-            .preferredColorScheme(isDarkMode ? .dark : .light)
+            .preferredColorScheme(themePreference == "system" ? nil : (themePreference == "dark" ? .dark : .light))
         }
     }
 }

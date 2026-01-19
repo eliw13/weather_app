@@ -16,8 +16,24 @@ struct HomeView: View {
     @State var isViewLoaded: Bool = false
     @State private var isMenuOpen: Bool = false
     @State private var isFahrenheit: Bool = true // Temperature unit toggle
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = false
+    @AppStorage("themePreference") private var themePreference: String = "system"
+    @Environment(\.colorScheme) private var systemColorScheme
     @State private var showingSettings: Bool = false
+    @State private var showingLocations: Bool = false
+    @Namespace private var locationTransition
+    @State private var selectedLocationName: String?
+    
+    // Computed property to determine actual dark mode state
+    var isDarkMode: Bool {
+        switch themePreference {
+        case "dark":
+            return true
+        case "light":
+            return false
+        default: // "system"
+            return systemColorScheme == .dark
+        }
+    }
     
     init(viewModel: HomeViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -56,6 +72,7 @@ struct HomeView: View {
                 }
             })
             .modifier(BackgroundViewModifier())
+            .matchedGeometryEffect(id: "weatherView", in: locationTransition, isSource: !showingLocations)
             
             // Dimmed overlay when menu is open
             if isMenuOpen {
@@ -74,6 +91,18 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
+        }
+        .fullScreenCover(isPresented: $showingLocations) {
+            LocationsManagerView(
+                namespace: locationTransition,
+                onLocationSelected: { locationName in
+                    if locationName != "Current Location" {
+                        viewModel.fetchWeatherForCity(locationName)
+                    } else {
+                        viewModel.fetchData()
+                    }
+                }
+            )
         }
     }
     
@@ -135,9 +164,20 @@ struct HomeView: View {
     func loadedHeaderBuilder() -> some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.cityName)
-                    .font(.custom("Manrope", size: 28))
-                    .fontWeight(.bold)
+                HStack(spacing: 8) {
+                    Text(viewModel.cityName)
+                        .font(.custom("Manrope", size: 28))
+                        .fontWeight(.bold)
+                    
+                    // Location icon button
+                    Button(action: {
+                        showingLocations = true
+                    }) {
+                        Image(systemName: "location.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(.blue)
+                    }
+                }
                 
                 Text(viewModel.dateDescription)
                     .font(.custom("Manrope", size: 14))
@@ -435,47 +475,6 @@ struct HomeView: View {
                     Spacer()
                     
                     VStack(spacing: 0) {
-                        // Dark Mode Toggle
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                isDarkMode.toggle()
-                            }
-                        }) {
-                            HStack(spacing: 16) {
-                                Image(systemName: isDarkMode ? "moon.fill" : "sun.max.fill")
-                                    .font(.system(size: 17))
-                                    .foregroundStyle(.primary)
-                                    .frame(width: 20)
-                                
-                                Text(isDarkMode ? "Dark Mode" : "Light Mode")
-                                    .font(.custom("Manrope", size: 17))
-                                    .fontWeight(.medium)
-                                    .foregroundStyle(.primary)
-                                
-                                Spacer()
-                                
-                                // Toggle indicator
-                                ZStack {
-                                    Capsule()
-                                        .fill(isDarkMode ? Color.blue : Color.gray.opacity(0.3))
-                                        .frame(width: 51, height: 31)
-                                    
-                                    Circle()
-                                        .fill(.white)
-                                        .frame(width: 27, height: 27)
-                                        .offset(x: isDarkMode ? 10 : -10)
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 14)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        
-                        Divider()
-                            .padding(.horizontal, 12)
-                            .opacity(0.5)
-                        
                         // Temperature Unit: Celsius
                         Button(action: {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
