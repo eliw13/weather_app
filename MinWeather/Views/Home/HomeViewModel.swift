@@ -21,6 +21,7 @@ class HomeViewModel: ObservableObject, UserLocationProtocol {
     @Published private(set) var humidity: Int = 0
     @Published private(set) var windSpeed: Int = 0
     @Published private(set) var visibility: Int = 0
+    @Published private(set) var hourlyForecasts: [FetchWeatherDataResponse.HourlyWeather] = []
     
     enum State {
         case loading
@@ -44,6 +45,7 @@ class HomeViewModel: ObservableObject, UserLocationProtocol {
     
     
     func onUserLocationPermissionGranted() {
+        print("✅ HomeViewModel: Permission granted, requesting location")
         self.state = .loading
         self.locationManager?.requestLocation()
     }
@@ -53,15 +55,18 @@ class HomeViewModel: ObservableObject, UserLocationProtocol {
     }
     
     func onUserLocationReceived(latitude: Double, longitude: Double) {
+        print("📍 HomeViewModel: Location received - lat: \(latitude), lon: \(longitude)")
         self.state = .loading
         
         self.openWeatherService.fetchWeatherData(lat: latitude, lon: longitude) { response, error in
             if error != nil {
+                print("❌ HomeViewModel: Weather API error: \(error!.localizedDescription)")
                 self.state = .error
                 return
             }
             
             if let data = response {
+                print("✅ HomeViewModel: Weather data received for \(data.name)")
                 let date = Date(timeIntervalSince1970: TimeInterval(data.dt))
                 let formatter = DateFormatter()
                 formatter.dateFormat = "MMMM d, YYYY"
@@ -74,6 +79,7 @@ class HomeViewModel: ObservableObject, UserLocationProtocol {
                 self.humidity = data.main.humidity
                 self.windSpeed = Int(data.wind.speed)
                 self.visibility = data.visibility / 1000
+                self.hourlyForecasts = data.hourly ?? []
                 
                 let imagePrefix = data.weather.first!.icon.last!
                 let imageName = "\(imagePrefix)_\(self.weatherKey)"
@@ -87,12 +93,14 @@ class HomeViewModel: ObservableObject, UserLocationProtocol {
                 
                 self.state = .loaded
             } else {
+                print("❌ HomeViewModel: No weather data in response")
                 self.state = .error
             }
         }
     }
     
     func onUserLocationError() {
+        print("❌ HomeViewModel: Location error occurred")
         self.state = .error
     }
 }

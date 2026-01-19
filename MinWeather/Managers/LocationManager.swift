@@ -52,13 +52,28 @@ class LocationManagerDelegate: NSObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
+        print("❌ Location error: \(error.localizedDescription)")
+        if let clError = error as? CLError {
+            print("❌ CLError code: \(clError.code.rawValue)")
+        }
         self.userLocationProtocol.onUserLocationError()
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        if manager.authorizationStatus != .denied {
+        print("🔐 Authorization status changed to: \(manager.authorizationStatus.rawValue)")
+        switch manager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            print("✅ Permission granted, requesting location...")
             self.userLocationProtocol.onUserLocationPermissionGranted()
-        } else {
+        case .denied, .restricted:
+            print("⛔️ Permission denied or restricted")
+            self.userLocationProtocol.onUserLocationPermissionDenied()
+        case .notDetermined:
+            print("⏳ Permission not yet determined")
+            // Permission not yet determined, waiting for user response
+            break
+        @unknown default:
+            print("❓ Unknown authorization status")
             self.userLocationProtocol.onUserLocationPermissionDenied()
         }
     }

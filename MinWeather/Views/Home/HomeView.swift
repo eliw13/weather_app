@@ -66,6 +66,7 @@ struct HomeView: View {
         loadedHeaderBuilder()
         Spacer()
         loadedContentBuilder()
+        loadedHourlyForecastBuilder()
         Spacer()
         loadedFooterBuilder()
     }
@@ -133,6 +134,71 @@ struct HomeView: View {
         .opacity(self.isViewLoaded ? 1 : 0)
         .scaleEffect(self.isViewLoaded ? 1 : 0.96)
         .animation(.easeIn(duration: 0.3), value: self.isViewLoaded)
+    }
+    
+    @ViewBuilder
+    func loadedHourlyForecastBuilder() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("HOURLY FORECAST")
+                .font(.custom("Manrope", size: 12))
+                .fontWeight(.black)
+                .foregroundStyle(.gray)
+                .padding(.horizontal)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(Array(viewModel.hourlyForecasts.enumerated()), id: \.offset) { index, hourly in
+                        VStack(spacing: 8) {
+                            Text(hourly.hour)
+                                .font(.custom("Manrope", size: 14))
+                                .fontWeight(.semibold)
+                            
+                            Image(systemName: weatherIconForCode(hourly.weatherCode))
+                                .font(.system(size: 24))
+                                .frame(height: 30)
+                            
+                            Text("\(Int(hourly.temperature))°")
+                                .font(.custom("Manrope", size: 16))
+                                .fontWeight(.bold)
+                        }
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .background(.white.opacity(0.44))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+        .opacity(self.isViewLoaded ? 1 : 0)
+        .offset(y: self.isViewLoaded ? 0 : 8)
+        .animation(.easeIn(duration: 0.3).delay(0.1), value: self.isViewLoaded)
+    }
+    
+    // Helper function to get SF Symbol for weather code
+    func weatherIconForCode(_ code: Int) -> String {
+        switch code {
+        case 0:
+            return "sun.max.fill"
+        case 1:
+            return "cloud.sun.fill"
+        case 2:
+            return "cloud.fill"
+        case 3:
+            return "smoke.fill"
+        case 45, 48:
+            return "cloud.fog.fill"
+        case 51, 53, 55, 56, 57:
+            return "cloud.drizzle.fill"
+        case 61, 63, 65, 66, 67, 80, 81, 82:
+            return "cloud.rain.fill"
+        case 71, 73, 75, 77, 85, 86:
+            return "cloud.snow.fill"
+        case 95, 96, 99:
+            return "cloud.bolt.rain.fill"
+        default:
+            return "cloud.fill"
+        }
     }
     
     @ViewBuilder
