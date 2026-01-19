@@ -33,6 +33,14 @@
 		AF9764A02F1E999E00335A11 /* LocationsManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */; };
 		AF9764A12F1E999E00335A11 /* LocationsManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */; };
 		AF9764A22F1E999E00335A11 /* LocationsManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */; };
+		AFEC1D702F1EC93000D3F8EE /* ThemePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEC1D6D2F1EC93000D3F8EE /* ThemePreview.swift */; };
+		AFEC1D712F1EC93000D3F8EE /* WeatherTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEC1D6E2F1EC93000D3F8EE /* WeatherTheme.swift */; };
+		AFEC1D732F1ECA2700D3F8EE /* Font+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEC1D722F1ECA2700D3F8EE /* Font+Extension.swift */; };
+		AFEC1D772F1ECAE200D3F8EE /* Abel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AFEC1D742F1ECAE200D3F8EE /* Abel-Regular.ttf */; };
+		AFEC1D782F1ECAE200D3F8EE /* Aldrich-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AFEC1D752F1ECAE200D3F8EE /* Aldrich-Regular.ttf */; };
+		AFEC1D792F1ECAE200D3F8EE /* Amiko-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AFEC1D762F1ECAE200D3F8EE /* Amiko-Regular.ttf */; };
+		AFEC1D7C2F1ED5D000D3F8EE /* AnimatedWeatherBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEC1D7A2F1ED5D000D3F8EE /* AnimatedWeatherBackground.swift */; };
+		AFEC1D7E2F1EDB1C00D3F8EE /* WeatherTestMenuView 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEC1D7D2F1EDB1C00D3F8EE /* WeatherTestMenuView 2.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +89,14 @@
 		AF9764982F1E901100335A11 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		AF9764992F1E901100335A11 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsManagerView.swift; sourceTree = "<group>"; };
+		AFEC1D6D2F1EC93000D3F8EE /* ThemePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePreview.swift; sourceTree = "<group>"; };
+		AFEC1D6E2F1EC93000D3F8EE /* WeatherTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherTheme.swift; sourceTree = "<group>"; };
+		AFEC1D722F1ECA2700D3F8EE /* Font+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+Extension.swift"; sourceTree = "<group>"; };
+		AFEC1D742F1ECAE200D3F8EE /* Abel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Abel-Regular.ttf"; sourceTree = "<group>"; };
+		AFEC1D752F1ECAE200D3F8EE /* Aldrich-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Aldrich-Regular.ttf"; sourceTree = "<group>"; };
+		AFEC1D762F1ECAE200D3F8EE /* Amiko-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiko-Regular.ttf"; sourceTree = "<group>"; };
+		AFEC1D7A2F1ED5D000D3F8EE /* AnimatedWeatherBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedWeatherBackground.swift; sourceTree = "<group>"; };
+		AFEC1D7D2F1EDB1C00D3F8EE /* WeatherTestMenuView 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WeatherTestMenuView 2.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +136,7 @@
 		6C2B86232C8E9D6600E9B65B /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				AFEC1D7D2F1EDB1C00D3F8EE /* WeatherTestMenuView 2.swift */,
 				6C78784B2C8C732400CFB006 /* HomeView.swift */,
 				6C2B86242C8E9D7900E9B65B /* HomeViewModel.swift */,
 			);
@@ -155,6 +172,8 @@
 		6C7878482C8C732400CFB006 /* MinWeather */ = {
 			isa = PBXGroup;
 			children = (
+				AFEC1D722F1ECA2700D3F8EE /* Font+Extension.swift */,
+				AFEC1D6F2F1EC93000D3F8EE /* Theme */,
 				6C3B819C2C8FEEB6005F5046 /* Factories */,
 				6C2B861D2C8E38EE00E9B65B /* Managers */,
 				6C7878A52C8CD11D00CFB006 /* Modifiers */,
@@ -180,6 +199,7 @@
 		6C7878752C8C773500CFB006 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				AFEC1D7B2F1ED5D000D3F8EE /* AnimatedBackgrounds */,
 				AF97649F2F1E999E00335A11 /* Locations */,
 				AF97649A2F1E901100335A11 /* Settings */,
 				6C2B86232C8E9D6600E9B65B /* Home */,
@@ -199,6 +219,9 @@
 		6C7878772C8C8B0F00CFB006 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				AFEC1D742F1ECAE200D3F8EE /* Abel-Regular.ttf */,
+				AFEC1D752F1ECAE200D3F8EE /* Aldrich-Regular.ttf */,
+				AFEC1D762F1ECAE200D3F8EE /* Amiko-Regular.ttf */,
 				6C2B860C2C8D368800E9B65B /* Manrope-Bold.ttf */,
 				6C2B860E2C8D368800E9B65B /* Manrope-ExtraBold.ttf */,
 				6C2B860D2C8D368800E9B65B /* Manrope-ExtraLight.ttf */,
@@ -245,6 +268,23 @@
 				AF97649E2F1E999E00335A11 /* LocationsManagerView.swift */,
 			);
 			path = Locations;
+			sourceTree = "<group>";
+		};
+		AFEC1D6F2F1EC93000D3F8EE /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				AFEC1D6D2F1EC93000D3F8EE /* ThemePreview.swift */,
+				AFEC1D6E2F1EC93000D3F8EE /* WeatherTheme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		AFEC1D7B2F1ED5D000D3F8EE /* AnimatedBackgrounds */ = {
+			isa = PBXGroup;
+			children = (
+				AFEC1D7A2F1ED5D000D3F8EE /* AnimatedWeatherBackground.swift */,
+			);
+			path = AnimatedBackgrounds;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -364,6 +404,9 @@
 				6C2B86162C8D368800E9B65B /* Manrope-SemiBold.ttf in Resources */,
 				6C2B86132C8D368800E9B65B /* Manrope-Bold.ttf in Resources */,
 				6C2B86152C8D368800E9B65B /* Manrope-ExtraBold.ttf in Resources */,
+				AFEC1D772F1ECAE200D3F8EE /* Abel-Regular.ttf in Resources */,
+				AFEC1D782F1ECAE200D3F8EE /* Aldrich-Regular.ttf in Resources */,
+				AFEC1D792F1ECAE200D3F8EE /* Amiko-Regular.ttf in Resources */,
 				6C2B86142C8D368800E9B65B /* Manrope-ExtraLight.ttf in Resources */,
 				6C2B86122C8D368800E9B65B /* Manrope-Light.ttf in Resources */,
 			);
@@ -390,9 +433,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AFEC1D7E2F1EDB1C00D3F8EE /* WeatherTestMenuView 2.swift in Sources */,
 				AF97649B2F1E901100335A11 /* GeneralSettingsView.swift in Sources */,
+				AFEC1D7C2F1ED5D000D3F8EE /* AnimatedWeatherBackground.swift in Sources */,
 				AF9764A22F1E999E00335A11 /* LocationsManagerView.swift in Sources */,
 				AF97649C2F1E901100335A11 /* DisplaySettingsView.swift in Sources */,
+				AFEC1D732F1ECA2700D3F8EE /* Font+Extension.swift in Sources */,
 				AF97649D2F1E901100335A11 /* SettingsView.swift in Sources */,
 				6C2B86182C8D4D7F00E9B65B /* AvatarImageModifier.swift in Sources */,
 				6C2B861F2C8E393E00E9B65B /* OpenWeatherService.swift in Sources */,
@@ -403,6 +449,8 @@
 				6C7878AB2C8CD1B400CFB006 /* TemperatureTextModifier.swift in Sources */,
 				6C78784C2C8C732400CFB006 /* HomeView.swift in Sources */,
 				6CC31DC12C8EA2E400BAF633 /* LocationManager.swift in Sources */,
+				AFEC1D702F1EC93000D3F8EE /* ThemePreview.swift in Sources */,
+				AFEC1D712F1EC93000D3F8EE /* WeatherTheme.swift in Sources */,
 				6C78784A2C8C732400CFB006 /* MinWeatherApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -574,7 +622,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MinWeather/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Minimal Weather";
+				INFOPLIST_KEY_CFBundleDisplayName = Strata;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -606,7 +654,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MinWeather/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Minimal Weather";
+				INFOPLIST_KEY_CFBundleDisplayName = Strata;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
