@@ -17,6 +17,9 @@ struct FetchWeatherDataResponse: Codable {
     let visibility: Int
     let dt: Int
     let hourly: [HourlyWeather]?
+    let daily: [DailyWeather]?
+    let weatherCode: Int?
+    let feelsLike: Double?
     
     struct WeatherItem: Codable {
         let main: String
@@ -49,6 +52,24 @@ struct FetchWeatherDataResponse: Codable {
             return time
         }
     }
+    
+    struct DailyWeather: Codable {
+        let date: String
+        let temperatureMin: Double
+        let temperatureMax: Double
+        let weatherCode: Int
+        
+        var dayOfWeek: String {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            if let date = formatter.date(from: self.date) {
+                let dayFormatter = DateFormatter()
+                dayFormatter.dateFormat = "EEE"
+                return dayFormatter.string(from: date)
+            }
+            return date
+        }
+    }
 }
 
 // Open-Meteo API Response structures
@@ -57,6 +78,7 @@ struct OpenMeteoResponse: Codable {
     let longitude: Double
     let current: CurrentWeather
     let hourly: HourlyWeather?
+    let daily: DailyWeather?
     
     struct CurrentWeather: Codable {
         let time: String
@@ -64,12 +86,20 @@ struct OpenMeteoResponse: Codable {
         let relative_humidity_2m: Int
         let weather_code: Int
         let wind_speed_10m: Double
+        let apparent_temperature: Double
         let visibility: Double?
     }
     
     struct HourlyWeather: Codable {
         let time: [String]
         let temperature_2m: [Double]
+        let weather_code: [Int]
+    }
+    
+    struct DailyWeather: Codable {
+        let time: [String]
+        let temperature_2m_max: [Double]
+        let temperature_2m_min: [Double]
         let weather_code: [Int]
     }
 }
@@ -111,9 +141,12 @@ class OpenWeatherService {
             let weatherParams = [
                 "latitude": "\(lat)",
                 "longitude": "\(lon)",
-                "current": "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,visibility",
+                "current": "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,apparent_temperature,visibility",
                 "hourly": "temperature_2m,weather_code",
-                "forecast_days": "1",
+                "daily": "temperature_2m_max,temperature_2m_min,weather_code",
+                "temperature_unit": "celsius",
+                "wind_speed_unit": "mph",
+                "forecast_days": "7",
                 "timezone": "auto"
             ]
             
@@ -139,17 +172,54 @@ class OpenWeatherService {
         let weatherCode = meteoData.current.weather_code
         let (weatherMain, weatherDescription, iconCode) = self.interpretWMOCode(weatherCode)
         
-        // Convert hourly data (get next 12 hours)
+        // Convert hourly data (get next 12 hours starting from current hour)
         var hourlyForecasts: [FetchWeatherDataResponse.HourlyWeather] = []
         if let hourly = meteoData.hourly {
-            let maxHours = min(12, hourly.time.count)
-            for i in 0..<maxHours {
+            // Get current date components to find the current hour
+            let now = Date()
+            let calendar = Calendar.current
+            let currentHour = calendar.component(.hour, from: now)
+            
+            // Parse the hourly times to find the index of the current hour
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
+            
+            var startIndex = 0
+            for (index, timeString) in hourly.time.enumerated() {
+                if let date = formatter.date(from: timeString) {
+                    let hour = calendar.component(.hour, from: date)
+                    // Check if this is the current hour or later
+                    if date >= now || (calendar.isDate(date, inSameDayAs: now) && hour >= currentHour) {
+                        startIndex = index
+                        break
+                    }
+                }
+            }
+            
+            // Get the next 12 hours from the start index
+            let endIndex = min(startIndex + 12, hourly.time.count)
+            for i in startIndex..<endIndex {
                 let hourlyWeather = FetchWeatherDataResponse.HourlyWeather(
                     time: hourly.time[i],
                     temperature: hourly.temperature_2m[i],
                     weatherCode: hourly.weather_code[i]
                 )
                 hourlyForecasts.append(hourlyWeather)
+            }
+        }
+        
+        // Convert daily data (get next 7 days)
+        var dailyForecasts: [FetchWeatherDataResponse.DailyWeather] = []
+        if let daily = meteoData.daily {
+            let maxDays = min(7, daily.time.count)
+            for i in 0..<maxDays {
+                let dailyWeather = FetchWeatherDataResponse.DailyWeather(
+                    date: daily.time[i],
+                    temperatureMin: daily.temperature_2m_min[i],
+                    temperatureMax: daily.temperature_2m_max[i],
+                    weatherCode: daily.weather_code[i]
+                )
+                dailyForecasts.append(dailyWeather)
             }
         }
         
@@ -171,7 +241,10 @@ class OpenWeatherService {
             ),
             visibility: Int((meteoData.current.visibility ?? 10000)),
             dt: Int(Date().timeIntervalSince1970),
-            hourly: hourlyForecasts
+            hourly: hourlyForecasts,
+            daily: dailyForecasts,
+            weatherCode: weatherCode,
+            feelsLike: meteoData.current.apparent_temperature
         )
     }
     

@@ -18,10 +18,13 @@ class HomeViewModel: ObservableObject, UserLocationProtocol {
     @Published private(set) var temperature: Int = 0
     @Published private(set) var weatherKey: String = ""
     @Published private(set) var weatherDescription: String = ""
+    @Published private(set) var weatherCode: Int = 0
     @Published private(set) var humidity: Int = 0
     @Published private(set) var windSpeed: Int = 0
     @Published private(set) var visibility: Int = 0
     @Published private(set) var hourlyForecasts: [FetchWeatherDataResponse.HourlyWeather] = []
+    @Published private(set) var dailyForecasts: [FetchWeatherDataResponse.DailyWeather] = []
+    @Published private(set) var feelsLike: Int = 0
     
     enum State {
         case loading
@@ -76,10 +79,13 @@ class HomeViewModel: ObservableObject, UserLocationProtocol {
                 self.temperature = Int(data.main.temp)
                 self.weatherKey = data.weather.first!.main
                 self.weatherDescription = data.weather.first!.description.capitalized
+                self.weatherCode = data.weatherCode ?? 0
                 self.humidity = data.main.humidity
                 self.windSpeed = Int(data.wind.speed)
-                self.visibility = data.visibility / 1000
+                self.visibility = Int(Double(data.visibility) / 1609.34) // Convert meters to miles
                 self.hourlyForecasts = data.hourly ?? []
+                self.dailyForecasts = data.daily ?? []
+                self.feelsLike = Int(data.feelsLike ?? data.main.temp)
                 
                 let imagePrefix = data.weather.first!.icon.last!
                 let imageName = "\(imagePrefix)_\(self.weatherKey)"

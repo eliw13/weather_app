@@ -3,7 +3,6 @@
 //  MinWeather
 //
 //  Created by Thiago Souza on 07/09/24.
-//  Updated with liquid glass morphing menu animation
 //
 
 import SwiftUI
@@ -16,8 +15,7 @@ struct HomeView: View {
     @State var isViewLoaded: Bool = false
     @State private var isMenuOpen: Bool = false
     @State private var isFahrenheit: Bool = true // Temperature unit toggle
-    @AppStorage("isDarkMode") private var isDarkMode: Bool = false
-    @State private var showingSettings: Bool = false
+    @Namespace private var menuNamespace
     
     init(viewModel: HomeViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -62,7 +60,7 @@ struct HomeView: View {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                             isMenuOpen = false
                         }
                     }
@@ -71,9 +69,6 @@ struct HomeView: View {
             
             // Liquid Glass Menu
             menuBuilder()
-        }
-        .sheet(isPresented: $showingSettings) {
-            SettingsView()
         }
     }
     
@@ -93,7 +88,7 @@ struct HomeView: View {
                 .fontWeight(.black)
             
         }
-        .frame(maxHeight: .infinity)
+        .frame(maxHeight: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
         .onAppear {
             bounceValue += 1
         }
@@ -107,7 +102,6 @@ struct HomeView: View {
                 loadedCurrentWeatherCardBuilder()
                 loadedHourlyForecastCardBuilder()
                 loadedDetailsCardsBuilder()
-                loadedWeeklyForecastCardBuilder()
             }
             .padding(.bottom, 20)
         }
@@ -128,7 +122,7 @@ struct HomeView: View {
                 .font(.custom("Manrope", size: 16))
                 .fontWeight(.black)
         }
-        .frame(maxHeight: .infinity)
+        .frame(maxHeight: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
     }
     
     @ViewBuilder
@@ -147,23 +141,20 @@ struct HomeView: View {
             
             Spacer()
             
-            // Three dots menu button (hidden when menu is open to create morphing effect)
-            if !isMenuOpen {
-                Button(action: {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
-                        isMenuOpen.toggle()
-                    }
-                }) {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(.primary)
-                        .frame(width: 44, height: 44)
-                        .background(
-                            Circle()
-                                .fill(Color.primary.opacity(0.1))
-                        )
+            // Three dots menu button
+            Button(action: {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                    isMenuOpen.toggle()
                 }
-                .transition(.scale.combined(with: .opacity))
+            }) {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .frame(width: 44, height: 44)
+                    .background(
+                        Circle()
+                            .fill(Color.primary.opacity(0.1))
+                    )
             }
         }
         .padding(.horizontal, 20)
@@ -173,6 +164,29 @@ struct HomeView: View {
         .animation(.easeIn(duration: 0.3), value: self.isViewLoaded)
     }
     
+    @ViewBuilder
+    func loadedContentBuilder() -> some View {
+        VStack(alignment: .center, spacing: 16) {
+            Image(self.viewModel.imageName)
+                .resizable()
+                .frame(width: 228, height: 228)
+                .modifier(ShadowBlurImageModifier())
+            
+            Text("\(self.viewModel.temperature)°")
+                .modifier(TemperatureTextModifier())
+            
+            Text(self.viewModel.weatherDescription)
+                .font(.custom("Manrope", size: 24))
+                .fontWeight(.heavy)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding()
+        .opacity(self.isViewLoaded ? 1 : 0)
+        .scaleEffect(self.isViewLoaded ? 1 : 0.96)
+        .animation(.easeIn(duration: 0.3), value: self.isViewLoaded)
+    }
+    
+    // MARK: - Card Builders
     @ViewBuilder
     func loadedCurrentWeatherCardBuilder() -> some View {
         VStack(spacing: 12) {
@@ -200,6 +214,45 @@ struct HomeView: View {
         .opacity(self.isViewLoaded ? 1 : 0)
         .scaleEffect(self.isViewLoaded ? 1 : 0.96)
         .animation(.easeIn(duration: 0.3), value: self.isViewLoaded)
+    }
+    
+    @ViewBuilder
+    func loadedHourlyForecastBuilder() -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("HOURLY FORECAST")
+                .font(.custom("Manrope", size: 12))
+                .fontWeight(.black)
+                .foregroundStyle(.gray)
+                .padding(.horizontal)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(Array(viewModel.hourlyForecasts.enumerated()), id: \.offset) { index, hourly in
+                        VStack(spacing: 8) {
+                            Text(hourly.hour)
+                                .font(.custom("Manrope", size: 14))
+                                .fontWeight(.semibold)
+                            
+                            Image(systemName: weatherIconForCode(hourly.weatherCode))
+                                .font(.system(size: 24))
+                                .frame(height: 30)
+                            
+                            Text("\(Int(hourly.temperature))°")
+                                .font(.custom("Manrope", size: 16))
+                                .fontWeight(.bold)
+                        }
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .background(.white.opacity(0.44))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+        .opacity(self.isViewLoaded ? 1 : 0)
+        .offset(y: self.isViewLoaded ? 0 : 8)
+        .animation(.easeIn(duration: 0.3).delay(0.1), value: self.isViewLoaded)
     }
     
     @ViewBuilder
@@ -245,7 +298,7 @@ struct HomeView: View {
                 .padding(.bottom, 20)
             }
         }
-        .background(isDarkMode ? Color.white.opacity(0.08) : Color.primary.opacity(0.05))
+        .background(Color.primary.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .padding(.horizontal, 20)
         .opacity(self.isViewLoaded ? 1 : 0)
@@ -280,6 +333,24 @@ struct HomeView: View {
     }
     
     @ViewBuilder
+    func loadedFooterBuilder() -> some View {
+        HStack {
+            loadedFooterCardBuilder(icon: "drop.fill", value: "\(self.viewModel.humidity)%")
+            loadedFooterDividerBuilder()
+            loadedFooterCardBuilder(icon: "wind", value: "\(self.viewModel.windSpeed) km/h")
+            loadedFooterDividerBuilder()
+            loadedFooterCardBuilder(icon: "eye.fill", value: "\(self.viewModel.visibility) km")
+        }
+        .padding()
+        .background(.white.opacity(0.44))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding()
+        .opacity(self.isViewLoaded ? 1 : 0)
+        .offset(y: self.isViewLoaded ? 0 : 8)
+        .animation(.easeIn(duration: 0.3), value: self.isViewLoaded)
+    }
+    
+    @ViewBuilder
     func loadedDetailsCardsBuilder() -> some View {
         LazyVGrid(columns: [
             GridItem(.flexible(), spacing: 16),
@@ -294,110 +365,25 @@ struct HomeView: View {
             detailCardBuilder(
                 icon: "wind",
                 title: "WIND SPEED",
-                value: "\(self.viewModel.windSpeed) mph"
+                value: "\(self.viewModel.windSpeed) km/h"
             )
             
             detailCardBuilder(
                 icon: "eye.fill",
                 title: "VISIBILITY",
-                value: "\(self.viewModel.visibility) mi"
+                value: "\(self.viewModel.visibility) km"
             )
             
             detailCardBuilder(
                 icon: "thermometer.medium",
                 title: "FEELS LIKE",
-                value: "\(displayTemperature(Double(self.viewModel.feelsLike)))\(temperatureUnit)"
+                value: "\(displayTemperature(Double(self.viewModel.temperature)))\(temperatureUnit)"
             )
         }
         .padding(.horizontal, 20)
         .opacity(self.isViewLoaded ? 1 : 0)
         .offset(y: self.isViewLoaded ? 0 : 8)
         .animation(.easeIn(duration: 0.3).delay(0.15), value: self.isViewLoaded)
-    }
-    
-    @ViewBuilder
-    func loadedWeeklyForecastCardBuilder() -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "calendar")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.secondary)
-                
-                Text("7-DAY FORECAST")
-                    .font(.custom("Manrope", size: 14))
-                    .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 20)
-            
-            VStack(spacing: 0) {
-                ForEach(Array(viewModel.dailyForecasts.enumerated()), id: \.offset) { index, daily in
-                    HStack(spacing: 16) {
-                        // Day of week
-                        Text(daily.dayOfWeek)
-                            .font(.custom("Manrope", size: 17))
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.primary)
-                            .frame(width: 50, alignment: .leading)
-                        
-                        Spacer()
-                        
-                        // Weather icon
-                        Image(systemName: weatherIconForCode(daily.weatherCode))
-                            .font(.system(size: 24))
-                            .symbolRenderingMode(.multicolor)
-                            .frame(width: 40)
-                        
-                        Spacer()
-                        
-                        // Temperature range
-                        HStack(spacing: 8) {
-                            Text("\(displayTemperature(daily.temperatureMin))°")
-                                .font(.custom("Manrope", size: 17))
-                                .fontWeight(.medium)
-                                .foregroundStyle(.secondary)
-                            
-                            // Range indicator
-                            Rectangle()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color.blue.opacity(0.5),
-                                            Color.orange.opacity(0.5)
-                                        ],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .frame(width: 40, height: 4)
-                                .cornerRadius(2)
-                            
-                            Text("\(displayTemperature(daily.temperatureMax))°")
-                                .font(.custom("Manrope", size: 17))
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.primary)
-                        }
-                        .frame(width: 140, alignment: .trailing)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 14)
-                    
-                    if index < viewModel.dailyForecasts.count - 1 {
-                        Divider()
-                            .padding(.horizontal, 20)
-                    }
-                }
-            }
-            .padding(.bottom, 12)
-        }
-        .background(isDarkMode ? Color.white.opacity(0.08) : Color.primary.opacity(0.05))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .padding(.horizontal, 20)
-        .opacity(self.isViewLoaded ? 1 : 0)
-        .offset(y: self.isViewLoaded ? 0 : 8)
-        .animation(.easeIn(duration: 0.3).delay(0.2), value: self.isViewLoaded)
     }
     
     @ViewBuilder
@@ -422,11 +408,32 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(isDarkMode ? Color.white.opacity(0.08) : Color.primary.opacity(0.05))
+        .background(Color.primary.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    // MARK: - Liquid Glass Menu with Morphing Animation
+    @ViewBuilder
+    func loadedFooterCardBuilder(icon: String, value: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+            Text(value)
+                .font(.custom("Manrope", size: 14))
+        }
+        .padding()
+        .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+        
+    }
+    
+    @ViewBuilder
+    func loadedFooterDividerBuilder() -> some View {
+        Rectangle()
+            .fill(.gray.opacity(0.08))
+            .frame(width: 2, height: 64)
+            .clipShape(RoundedRectangle(cornerRadius: 2))
+            .padding(.vertical)
+    }
+    
+    // MARK: - Menu Builder
     @ViewBuilder
     func menuBuilder() -> some View {
         if isMenuOpen {
@@ -435,48 +442,7 @@ struct HomeView: View {
                     Spacer()
                     
                     VStack(spacing: 0) {
-                        // Dark Mode Toggle
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                isDarkMode.toggle()
-                            }
-                        }) {
-                            HStack(spacing: 16) {
-                                Image(systemName: isDarkMode ? "moon.fill" : "sun.max.fill")
-                                    .font(.system(size: 17))
-                                    .foregroundStyle(.primary)
-                                    .frame(width: 20)
-                                
-                                Text(isDarkMode ? "Dark Mode" : "Light Mode")
-                                    .font(.custom("Manrope", size: 17))
-                                    .fontWeight(.medium)
-                                    .foregroundStyle(.primary)
-                                
-                                Spacer()
-                                
-                                // Toggle indicator
-                                ZStack {
-                                    Capsule()
-                                        .fill(isDarkMode ? Color.blue : Color.gray.opacity(0.3))
-                                        .frame(width: 51, height: 31)
-                                    
-                                    Circle()
-                                        .fill(.white)
-                                        .frame(width: 27, height: 27)
-                                        .offset(x: isDarkMode ? 10 : -10)
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 14)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        
-                        Divider()
-                            .padding(.horizontal, 12)
-                            .opacity(0.5)
-                        
-                        // Temperature Unit: Celsius
+                        // Temperature Unit Options
                         Button(action: {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 isFahrenheit = false
@@ -494,7 +460,6 @@ struct HomeView: View {
                                     Image(systemName: "checkmark")
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundStyle(.blue)
-                                        .transition(.scale.combined(with: .opacity))
                                 }
                             }
                             .padding(.horizontal, 20)
@@ -505,9 +470,7 @@ struct HomeView: View {
                         
                         Divider()
                             .padding(.horizontal, 12)
-                            .opacity(0.5)
                         
-                        // Temperature Unit: Fahrenheit
                         Button(action: {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 isFahrenheit = true
@@ -525,7 +488,6 @@ struct HomeView: View {
                                     Image(systemName: "checkmark")
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundStyle(.blue)
-                                        .transition(.scale.combined(with: .opacity))
                                 }
                             }
                             .padding(.horizontal, 20)
@@ -536,12 +498,11 @@ struct HomeView: View {
                         
                         Divider()
                             .padding(.horizontal, 12)
-                            .opacity(0.5)
                         
                         // Settings Option
                         Button(action: {
-                            showingSettings = true
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                            print("Settings tapped")
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                 isMenuOpen = false
                             }
                         }) {
@@ -566,69 +527,61 @@ struct HomeView: View {
                     }
                     .frame(minWidth: 200)
                     .background {
-                        // Liquid glass effect with frosted background
-                        ZStack {
-                            // Base blur layer
-                            RoundedRectangle(cornerRadius: 20)
+                        if #available(iOS 26.0, *) {
+                            Color.clear
+                                .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 18))
+                        } else {
+                            RoundedRectangle(cornerRadius: 18)
                                 .fill(.ultraThinMaterial)
-                            
-                            // Gradient overlay for liquid glass effect
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color.white.opacity(0.4),
-                                            Color.white.opacity(0.1),
-                                            Color.white.opacity(0.05)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
                         }
-                        .compositingGroup()
                     }
                     .overlay {
-                        // Border with gradient for extra shine
-                        RoundedRectangle(cornerRadius: 20)
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.4),
-                                        Color.white.opacity(0.1),
-                                        Color.clear
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1.5
-                            )
+                        RoundedRectangle(cornerRadius: 18)
+                            .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
                     }
-                    // Layered shadows for depth
-                    .shadow(color: .black.opacity(0.2), radius: 30, x: 0, y: 15)
-                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
-                    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.12), radius: 24, x: 0, y: 12)
                     .padding(.trailing, 20)
                     .padding(.top, 68)
                 }
                 
                 Spacer()
             }
-            // Morphing animation from button to menu
-            .transition(
-                .asymmetric(
-                    insertion: .scale(scale: 0.2, anchor: .topTrailing)
-                        .combined(with: .opacity)
-                        .combined(with: .offset(x: 15, y: -15)),
-                    removal: .scale(scale: 0.2, anchor: .topTrailing)
-                        .combined(with: .opacity)
-                        .combined(with: .offset(x: 15, y: -15))
-                )
-            )
+            .transition(.asymmetric(
+                insertion: .scale(scale: 0.5, anchor: .topTrailing)
+                    .combined(with: .opacity)
+                    .combined(with: .offset(x: 8, y: -8)),
+                removal: .scale(scale: 0.5, anchor: .topTrailing)
+                    .combined(with: .opacity)
+                    .combined(with: .offset(x: 8, y: -8))
+            ))
+            .animation(.spring(response: 0.35, dampingFraction: 0.7), value: isMenuOpen)
         }
+    }
+    
+    @ViewBuilder
+    func menuItemBuilder(icon: String, title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 24)
+                
+                Text(title)
+                    .font(.custom("Manrope", size: 16))
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.primary)
+                
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+        .buttonStyle(.plain)
     }
 }
 
 #Preview {
     HomeView(viewModel: ViewModelFactory().makeHomeViewModel())
 }
+
